@@ -376,18 +376,18 @@ class User_model extends CI_Emerald_Model {
 
     /**
      * Find user by personaname and password
-     * @param $personaname
+     * @param $email
      * @param $password
      * @return array
      */
-    public static function get_user_by_personaname_and_password($personaname, $password)
+    public static function get_user_by_email_and_password($email, $password)
     {
         $user = App::get_ci()
             ->s
             ->from(self::CLASS_TABLE)
             ->where([
-                'personaname' => $personaname,
-                'password'    => $password
+                'email'    => $email,
+                'password' => $password
             ])
             ->one();
 

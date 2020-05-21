@@ -27,8 +27,6 @@ class Main_page extends MY_Controller
     {
         $user = User_model::get_user();
 
-
-
         App::get_ci()->load->view('main_page', ['user' => User_model::preparation($user, 'default')]);
     }
 
@@ -86,10 +84,10 @@ class Main_page extends MY_Controller
 
     public function login()
     {
-        $personaname = $this->input->post('personaname');
+        $email = $this->input->post('login');
         $password = $this->input->post('password');
 
-        $user = User_model::get_user_by_personaname_and_password($personaname, $password);
+        $user = User_model::get_user_by_email_and_password($email, $password);
 
         if (empty($user)){
             return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS);

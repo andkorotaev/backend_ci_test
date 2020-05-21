@@ -143,6 +143,12 @@ class Main_page extends MY_Controller
             $user = User_model::get_user();
         }
 
+        log_message('info', json_encode([
+            'type' => 'add_money',
+            'user_id' => $user->get_id(),
+            'sum'   => $sum
+        ]));
+
         try
         {
             Transaction_model::create([
@@ -186,6 +192,16 @@ class Main_page extends MY_Controller
         }
 
         $price = $boosterpack->get_price();
+
+        if ($user->get_wallet_balance() < $price) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
+        }
+
+        log_message('info', json_encode([
+            'type' => 'buy_boosterpack',
+            'user_id' => $user->get_id(),
+            'boosterpack_id'   => $boosterpack->get_id()
+        ]));
 
         try
         {

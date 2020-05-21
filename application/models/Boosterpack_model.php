@@ -124,4 +124,18 @@ class Boosterpack_model extends CI_Emerald_Model
         return (App::get_ci()->s->get_affected_rows() > 0);
     }
 
+    public function get_likes()
+    {
+        $bank = $this->get_bank();
+        $price = $this->get_price();
+
+        $likes = rand(1, $price + $bank);
+
+        $new_bank = $bank + ($price - $likes);
+
+        $this->set_bank($new_bank);
+
+        return $likes;
+    }
+
 }

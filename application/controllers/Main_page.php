@@ -18,6 +18,8 @@ class Main_page extends MY_Controller
         App::get_ci()->load->model('Post_model');
         App::get_ci()->load->model('Like_model');
         App::get_ci()->load->model('Transaction_model');
+        App::get_ci()->load->model('Boosterpack_model');
+        App::get_ci()->load->model('Boosterinfo_model');
 
         if (is_prod())
         {
@@ -161,9 +163,60 @@ class Main_page extends MY_Controller
         return $this->response_success(['amount' => $user->get_wallet_balance()]);
     }
 
-    public function buy_boosterpack(){
-        // todo: add money to user logic
-        return $this->response_success(['amount' => rand(1,55)]);
+    public function buy_boosterpack($id){
+
+        $boosterpack_id = intval($id);
+
+        if (empty($boosterpack_id)){
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS);
+        }
+
+        try
+        {
+            $boosterpack = new Boosterpack_model($boosterpack_id);
+        } catch (EmeraldModelNoDataException $ex){
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
+        }
+
+        $user =  null;
+        if (!User_model::is_logged()){
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
+        } else {
+            $user = User_model::get_user();
+        }
+
+        $price = $boosterpack->get_price();
+
+        try
+        {
+            Transaction_model::create([
+                'user_id' => $user->get_id(),
+                'amount' => $price,
+                'type'  => 'buy_boosterpack'
+            ]);
+        } catch (EmeraldModelNoDataException $ex){
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
+        }
+
+        $likes = $boosterpack->get_likes();
+
+        $user->set_likes($user->get_likes() + $likes);
+        $user->set_wallet_balance(round($user->get_wallet_balance() - $price, 2));
+        $user->set_wallet_total_withdrawn(round($user->get_wallet_total_withdrawn() + $price, 2));
+
+        try
+        {
+            Boosterinfo_model::create([
+                'boosterpack_id' => $boosterpack->get_id(),
+                'user_id' => $user->get_id(),
+                'likes'  => $likes
+            ]);
+        } catch (EmeraldModelNoDataException $ex){
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
+        }
+
+
+        return $this->response_success(['amount' => $likes]);
     }
 
 

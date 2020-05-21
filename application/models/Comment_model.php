@@ -15,6 +15,10 @@ class Comment_model extends CI_Emerald_Model
     protected $user_id;
     /** @var int */
     protected $assing_id;
+    /** @var int */
+    protected $reply_id;
+    /** @var int */
+    protected $likes;
     /** @var string */
     protected $text;
 
@@ -25,7 +29,6 @@ class Comment_model extends CI_Emerald_Model
 
     // generated
     protected $comments;
-    protected $likes;
     protected $user;
 
 
@@ -67,6 +70,44 @@ class Comment_model extends CI_Emerald_Model
         return $this->save('assing_id', $assing_id);
     }
 
+    /**
+     * @return int|NULL
+     */
+    public function get_reply_id()
+    {
+        return $this->reply_id;
+    }
+
+    /**
+     * @param int $reply_id
+     *
+     * @return bool
+     */
+    public function set_reply_id(int $reply_id)
+    {
+        $this->reply_id = $reply_id;
+        return $this->save('reply_id', $reply_id);
+    }
+
+
+    /**
+     * @return int
+     */
+    public function get_likes(): int
+    {
+        return $this->likes;
+    }
+
+    /**
+     * @param int $likes
+     *
+     * @return bool
+     */
+    public function set_likes(int $likes)
+    {
+        $this->likes = $likes;
+        return $this->save('likes', $likes);
+    }
 
     /**
      * @return string
@@ -131,17 +172,16 @@ class Comment_model extends CI_Emerald_Model
     /**
      * @return mixed
      */
-    public function get_likes()
-    {
-        return $this->likes;
-    }
-
-    /**
-     * @return mixed
-     */
     public function get_comments()
     {
-        return $this->comments;
+        return App::get_ci()
+            ->s
+            ->from(self::CLASS_TABLE)
+            ->where([
+                'reply_id' => $this->get_id()
+            ])
+            ->orderBy('time_created','ASC')
+            ->many();
     }
 
     /**
@@ -239,13 +279,14 @@ class Comment_model extends CI_Emerald_Model
 
             $o->id = $d->get_id();
             $o->text = $d->get_text();
-
-            $o->user = User_model::preparation($d->get_user(),'main_page');
-
-            $o->likes = rand(0, 25);
+            $o->reply_id = $d->get_reply_id();
+            $o->likes = $d->get_likes();
+            $o->comments = $d->get_comments($d->get_id());
 
             $o->time_created = $d->get_time_created();
             $o->time_updated = $d->get_time_updated();
+
+            $o->user = User_model::preparation($d->get_user(),'main_page');
 
             $ret[] = $o;
         }

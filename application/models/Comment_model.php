@@ -17,8 +17,6 @@ class Comment_model extends CI_Emerald_Model
     protected $assing_id;
     /** @var int|NULL */
     protected $reply_id;
-    /** @var int */
-    protected $likes;
     /** @var string */
     protected $text;
 
@@ -95,18 +93,7 @@ class Comment_model extends CI_Emerald_Model
      */
     public function get_likes(): int
     {
-        return $this->likes;
-    }
-
-    /**
-     * @param int $likes
-     *
-     * @return bool
-     */
-    public function set_likes(int $likes)
-    {
-        $this->likes = $likes;
-        return $this->save('likes', $likes);
+        return Like_model::get_count_by_id($this->get_id(), 'comment');
     }
 
     /**
@@ -206,6 +193,7 @@ class Comment_model extends CI_Emerald_Model
         parent::__construct();
 
         App::get_ci()->load->model('User_model');
+        App::get_ci()->load->model('Like_model');
 
 
         $this->set_id($id);

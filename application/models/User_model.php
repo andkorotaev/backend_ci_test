@@ -132,6 +132,25 @@ class User_model extends CI_Emerald_Model {
     }
 
     /**
+     * @return int
+     */
+    public function get_likes(): int
+    {
+        return $this->likes;
+    }
+
+    /**
+     * @param int $likes
+     *
+     * @return bool
+     */
+    public function set_likes(int $likes)
+    {
+        $this->likes = $likes;
+        return $this->save('likes', $likes);
+    }
+
+    /**
      * @return float
      */
     public function get_wallet_balance(): float

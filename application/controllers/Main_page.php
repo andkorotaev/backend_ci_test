@@ -16,6 +16,7 @@ class Main_page extends MY_Controller
         App::get_ci()->load->model('User_model');
         App::get_ci()->load->model('Login_model');
         App::get_ci()->load->model('Post_model');
+        App::get_ci()->load->model('Like_model');
 
         if (is_prod())
         {
@@ -137,8 +138,63 @@ class Main_page extends MY_Controller
 
 
     public function like(){
-        // todo: add like post\comment logic
-        return $this->response_success(['likes' => rand(1,55)]); // Колво лайков под постом \ комментарием чтобы обновить
+
+        $assign_id = $this->input->post('assign_id');
+        $type = $this->input->post('type');
+
+        $user =  null;
+        if (!User_model::is_logged()){
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
+        } else {
+            $user = User_model::get_user();
+        }
+
+        if (!$user->get_likes()) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS);
+        }
+
+        if ($class = $this->get_class_by_type($type)) {
+            try
+            {
+                $assign = new $class($assign_id);
+            } catch (EmeraldModelNoDataException $ex){
+                return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
+            }
+        } else {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS);
+        }
+
+        try
+        {
+            Like_model::create([
+                'user_id' => $user->get_id(),
+                'assign_id' => $assign_id,
+                'type'  => $type
+            ]);
+        } catch (EmeraldModelNoDataException $ex){
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
+        }
+
+        $likes = $user->get_likes();
+        $user->set_likes(--$likes);
+
+        return $this->response_success([
+            'likes' => $assign->get_likes(),
+            'type'  => $type,
+            'assign_id' => $assign_id
+        ]);
+    }
+
+    protected function get_class_by_type(string $type)
+    {
+        switch ($type){
+            case 'post':
+                return 'Post_model';
+            case 'comment':
+                return 'Comment_model';
+            default:
+                return null;
+        }
     }
 
 }

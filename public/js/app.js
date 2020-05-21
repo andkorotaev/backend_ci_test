@@ -102,12 +102,24 @@ var app = new Vue({
 					}
 				})
 		},
-		addLike: function (id) {
+		addLike: function (assign_id, type) {
 			var self= this;
+
+			var formdata = new FormData();
+			formdata.append("assign_id", assign_id);
+			formdata.append("type", type);
+
 			axios
-				.get('/main_page/like')
+				.post('/main_page/like', formdata)
 				.then(function (response) {
-					self.likes = response.data.likes;
+					let type = response.data.type;
+
+					if (type === 'post') {
+						self.post.likes = response.data.likes;
+					} else if (type === 'comment') {
+						let index = self.post.coments.findIndex((item) => item.id === response.data.assign_id);
+						self.post.coments[index].likes = response.data.likes;
+					}
 				})
 
 		},

@@ -303,6 +303,8 @@ class User_model extends CI_Emerald_Model {
                 return self::_preparation_main_page($data);
             case 'default':
                 return self::_preparation_default($data);
+            case 'balance':
+                return self::_preparation_balance($data);
             default:
                 throw new Exception('undefined preparation type');
         }
@@ -348,6 +350,26 @@ class User_model extends CI_Emerald_Model {
 
             $o->time_created = $data->get_time_created();
             $o->time_updated = $data->get_time_updated();
+        }
+
+        return $o;
+    }
+
+    /**
+     * @param User_model $data
+     * @return stdClass
+     */
+    private static function _preparation_balance($data)
+    {
+        $o = new stdClass();
+
+        if (!$data->is_loaded())
+        {
+            $o->id = NULL;
+        } else {
+            $o->wallet_balance = $data->get_wallet_balance();
+            $o->wallet_total_refilled = $data->get_wallet_total_refilled();
+            $o->wallet_total_withdrawn = $data->get_wallet_total_withdrawn();
         }
 
         return $o;

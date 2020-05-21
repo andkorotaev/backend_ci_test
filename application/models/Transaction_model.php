@@ -116,4 +116,16 @@ class Transaction_model extends CI_Emerald_Model
         App::get_ci()->s->from(self::CLASS_TABLE)->insert($data)->execute();
         return new static(App::get_ci()->s->get_insert_id());
     }
+
+    public static function get_for_user($user_id)
+    {
+        return App::get_ci()
+            ->s
+            ->from(self::CLASS_TABLE)
+            ->where([
+                'user_id' => $user_id
+            ])
+            ->orderBy('time_created','DESC')
+            ->many();
+    }
 }

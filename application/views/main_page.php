@@ -38,6 +38,19 @@
               </button>
             <?php endif;?>
         </li>
+          <li class="nav-item">
+              <?php  if (User_model::is_logged()): ?>
+                  <button type="button" class="btn btn-success my-2 my-sm-0" @click="openBalanceModal">My balance - ${{currentBalance}}
+                  </button>
+              <?php endif;?>
+          </li>
+
+          <li class="nav-item">
+              <?php  if (User_model::is_logged()): ?>
+                  <button type="button" class="btn btn-success my-2 my-sm-0" @click="openLikesModal">My likes - {{currentLikes}}
+                  </button>
+              <?php endif;?>
+          </li>
       </div>
 <!--      <div class="collapse navbar-collapse" id="navbarTogglerDemo01">-->
 <!--        <li class="nav-item">-->
@@ -281,6 +294,112 @@
       </div>
     </div>
   </div>
+    <!-- Modal -->
+    <div class="modal fade balance-modal" id="balanceModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Balance info</h5>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#transactions">Transactions</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#balance">Current balance</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="transactions">
+                            <div>
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Datetime</th>
+                                        <th scope="col">Transaction</th>
+                                        <th scope="col">Amount</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody v-if="balanceModalTransactions">
+                                    <tr v-for="(transaction, key) in balanceModalTransactions">
+                                        <th scope="row">{{key+1}}</th>
+                                        <td>{{transaction.time_created}}</td>
+                                        <td>{{transaction.type}}</td>
+                                        <td>{{transaction.type === 'add_money' ? '+' : '-' }}{{transaction.amount}}$</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="balance">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th scope="col">wallet_balance</th>
+                                    <th scope="col">wallet_total_refilled</th>
+                                    <th scope="col">wallet_total_withdrawn</th>
+                                </tr>
+                                </thead>
+                                <tbody v-if="balanceModalInfo">
+                                <tr>
+                                    <td>{{balanceModalInfo.wallet_balance}}$</td>
+                                    <td>{{balanceModalInfo.wallet_total_refilled}}$</td>
+                                    <td>{{balanceModalInfo.wallet_total_withdrawn}}$</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade likes-modal" id="likesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Likes info</h5>
+                </div>
+                <div class="modal-body">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Datetime</th>
+                            <th scope="col">Boosterpack price</th>
+                            <th scope="col">Likes</th>
+                        </tr>
+                        </thead>
+                        <tbody v-if="likesModalInfo">
+                        <tr v-for="(info, key) in likesModalInfo">
+                            <th scope="row">{{key+1}}</th>
+                            <td>{{info.time_created}}</td>
+                            <td>{{info.price}}$</td>
+                            <td>{{info.likes}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"

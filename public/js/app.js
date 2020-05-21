@@ -1,6 +1,11 @@
 var app = new Vue({
 	el: '#app',
 	data: {
+		currentBalance: 0,
+		currentLikes: 0,
+		balanceModalTransactions: null,
+		balanceModalInfo: null,
+		likesModalInfo: null,
 		login: '',
 		pass: '',
 		post: false,
@@ -41,8 +46,40 @@ var app = new Vue({
 			.then(function (response) {
 				self.posts = response.data.posts;
 			})
+
+		this.updateBalance();
 	},
 	methods: {
+		openBalanceModal: function() {
+			var self= this;
+			axios.get('/main_page/get_balance_info')
+				.then(function (response) {
+					self.balanceModalTransactions = response.data.balance;
+					self.balanceModalInfo = response.data.user;
+
+					let element = self.$el.getElementsByClassName('balance-modal')[0];
+					$(element).modal('show');
+
+				})
+		},
+		openLikesModal: function() {
+			var self= this;
+			axios.get('/main_page/get_likes_info')
+				.then(function (response) {
+					self.likesModalInfo = response.data.info;
+
+					let element = self.$el.getElementsByClassName('likes-modal')[0];
+					$(element).modal('show');
+				})
+		},
+		updateBalance: function() {
+			var self= this;
+			axios.get('/main_page/get_balance')
+				.then(function (response) {
+					self.currentBalance = response.data.balance;
+					self.currentLikes = response.data.likes;
+				})
+		},
 		logout: function () {
 			console.log ('logout');
 		},
@@ -85,6 +122,7 @@ var app = new Vue({
 
 				axios.post('/main_page/add_money', formdata)
 					.then(function (response) {
+						self.updateBalance();
 						setTimeout(function () {
 							$('#addModal').modal('hide');
 						}, 500);
@@ -114,6 +152,8 @@ var app = new Vue({
 			axios
 				.post('/main_page/like', formdata)
 				.then(function (response) {
+					self.updateBalance();
+
 					let type = response.data.type;
 
 					if (type === 'post') {
@@ -129,6 +169,7 @@ var app = new Vue({
 			var self= this;
 			axios.post('/main_page/buy_boosterpack/' + id)
 				.then(function (response) {
+					self.updateBalance();
 					self.amount = response.data.amount
 					if(self.amount !== 0){
 						setTimeout(function () {

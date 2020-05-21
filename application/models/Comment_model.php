@@ -269,7 +269,7 @@ class Comment_model extends CI_Emerald_Model
             $o->text = $d->get_text();
             $o->reply_id = $d->get_reply_id();
             $o->likes = $d->get_likes();
-            $o->comments = $d->get_comments($d->get_id());
+            $o->comments = $d->get_comments();
 
             $o->time_created = $d->get_time_created();
             $o->time_updated = $d->get_time_updated();

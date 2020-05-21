@@ -225,6 +225,7 @@ class Main_page extends MY_Controller
             Boosterinfo_model::create([
                 'boosterpack_id' => $boosterpack->get_id(),
                 'user_id' => $user->get_id(),
+                'price' => $price,
                 'likes'  => $likes
             ]);
         } catch (EmeraldModelNoDataException $ex){
@@ -301,4 +302,47 @@ class Main_page extends MY_Controller
         }
     }
 
+    public function get_balance()
+    {
+        $user =  null;
+        if (!User_model::is_logged()){
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
+        } else {
+            $user = User_model::get_user();
+        }
+
+        return $this->response_success([
+            'balance' => $user->get_wallet_balance(),
+            'likes'  => $user->get_likes(),
+        ]);
+    }
+
+    public function get_balance_info()
+    {
+        $user =  null;
+        if (!User_model::is_logged()){
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
+        } else {
+            $user = User_model::get_user();
+        }
+
+        return $this->response_success([
+            'balance' => Transaction_model::get_for_user($user->get_id()),
+            'user'  => User_model::preparation($user, 'balance'),
+        ]);
+    }
+
+    public function get_likes_info()
+    {
+        $user =  null;
+        if (!User_model::is_logged()){
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
+        } else {
+            $user = User_model::get_user();
+        }
+
+        return $this->response_success([
+            'info' => Boosterinfo_model::get_for_user($user->get_id()),
+        ]);
+    }
 }

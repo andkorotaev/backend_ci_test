@@ -123,6 +123,18 @@ var app = new Vue({
 						}, 500);
 					}
 				})
+		},
+
+		scrollToElement: function (className) {
+			const el = this.$el.getElementsByClassName(className)[0];
+
+			if (el) {
+				el.scrollIntoView();
+				el.style.background = "#f6baba";
+				setTimeout(function () {
+					el.style.background = "#FFF";
+				}, 500);
+			}
 		}
 	}
 });

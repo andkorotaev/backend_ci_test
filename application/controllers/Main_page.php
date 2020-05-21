@@ -94,7 +94,8 @@ class Main_page extends MY_Controller
         }
 
         Login_model::start_session($user['id']);
-        redirect(site_url('/'));
+
+        return $this->response_success(['user' => $user['id']]);
     }
 
 

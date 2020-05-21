@@ -57,14 +57,17 @@ var app = new Vue({
 			else{
 				self.invalidLogin = false
 				self.invalidPass = false
-				axios.post('/main_page/login', {
-					login: self.login,
-					password: self.pass
-				})
+
+				var formdata = new FormData();
+				formdata.append("login", self.login);
+				formdata.append("password", self.pass);
+
+				axios.post('/main_page/login', formdata)
 					.then(function (response) {
-						setTimeout(function () {
+						window.location.reload(false);
+						/*setTimeout(function () {
 							$('#loginModal').modal('hide');
-						}, 500);
+						}, 500);*/
 					})
 			}
 		},

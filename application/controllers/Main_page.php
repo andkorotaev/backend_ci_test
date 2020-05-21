@@ -17,6 +17,7 @@ class Main_page extends MY_Controller
         App::get_ci()->load->model('Login_model');
         App::get_ci()->load->model('Post_model');
         App::get_ci()->load->model('Like_model');
+        App::get_ci()->load->model('Transaction_model');
 
         if (is_prod())
         {
@@ -127,8 +128,37 @@ class Main_page extends MY_Controller
     }
 
     public function add_money(){
-        // todo: add money to user logic
-        return $this->response_success(['amount' => rand(1,55)]);
+        $sum = $this->input->post('sum');
+
+        if (!$sum){
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS);
+        }
+
+        $user =  null;
+        if (!User_model::is_logged()){
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
+        } else {
+            $user = User_model::get_user();
+        }
+
+        try
+        {
+            Transaction_model::create([
+                'user_id' => $user->get_id(),
+                'amount' => $sum,
+                'type'  => 'add_money'
+            ]);
+        } catch (EmeraldModelNoDataException $ex){
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
+        }
+
+        $wallet_balance = $user->get_wallet_balance();
+        $wallet_total_refilled = $user->get_wallet_total_refilled();
+
+        $user->set_wallet_balance(round($wallet_balance + $sum, 2));
+        $user->set_wallet_total_refilled(round($wallet_total_refilled + $sum, 2));
+
+        return $this->response_success(['amount' => $user->get_wallet_balance()]);
     }
 
     public function buy_boosterpack(){
@@ -137,6 +167,11 @@ class Main_page extends MY_Controller
     }
 
 
+    /**
+     * Постарался сильно не привязывать лайки к сущностям, вдруг что-то еще в будущем можно будет лайкать :)
+     *
+     * @return object|string|void
+     */
     public function like(){
 
         $assign_id = $this->input->post('assign_id');

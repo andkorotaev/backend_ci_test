@@ -184,14 +184,14 @@
                             <div>{{comment.user.personaname}}</div>
                             <div>#{{comment.id}}</div>
                         </div>
-                        <p v-if="comment.reply_id">К посту:
+                        <p v-if="comment.reply_id">To:
                             <a href="#" @click.prevent="scrollToElement('comment-' + comment.reply_id)">
                                 #{{comment.reply_id}}
                             </a>
                         </p>
                         <p class="card-text">{{comment.text}}</p>
                         <div class="text-secondary" v-if="comment.comments.length">
-                            Коментарии:
+                            Comments:
                             <a
                                     class="mr-2"
                                     v-for="com in comment.comments"
@@ -211,16 +211,24 @@
                                 </div>
                                 <span v-if="comment.likes" class="ml-2">22</span>
                             </div>
-                            <div>Коментировать</div>
+                            <a href="#" @click.prevent="toComment(comment.id)">Comment</a>
                         </div>
                     </div>
                 </div>
 
-              <form class="form-inline">
+              <form class="form-inline new-comment-form">
+                  <div class="form-group">
+                      <p v-if="commentTo">To:
+                          <a href="#" @click.prevent="scrollToElement('comment-' + commentTo)">
+                              #{{commentTo}}
+                          </a>
+                          <a href="#" class="ml-2" @click.prevent="commentTo = null">Cancel</a>
+                      </p>
+                  </div>
                 <div class="form-group">
                   <input type="text" class="form-control" id="addComment" v-model="commentText">
                 </div>
-                <button type="submit" class="btn btn-primary">Add comment</button>
+                <button @click.prevent="addComment" type="submit" class="btn btn-primary">Add comment</button>
               </form>
             </div>
           </div>

@@ -12,6 +12,7 @@ var app = new Vue({
 		amount: 0,
 		likes: 0,
 		commentText: '',
+		commentTo: null,
 		packs: [
 			{
 				id: 1,
@@ -135,6 +136,34 @@ var app = new Vue({
 					el.style.background = "#FFF";
 				}, 500);
 			}
+		},
+
+		addComment: function () {
+			var self= this;
+			var formdata = new FormData();
+			formdata.append("post_id", self.post.id);
+			formdata.append("message", self.commentText);
+			formdata.append("reply_id", self.commentTo);
+
+			axios.post('/main_page/comment', formdata)
+				.then(function (response) {
+					self.post = response.data.post;
+
+					self.commentText = '';
+					self.commentTo = null;
+				})
+		},
+
+		toComment: function (id) {
+			var self= this;
+			const el = this.$el.getElementsByClassName('new-comment-form')[0];
+			self.commentTo = id;
+
+			if (el) {
+				el.scrollIntoView();
+			}
+
+
 		}
 	}
 });

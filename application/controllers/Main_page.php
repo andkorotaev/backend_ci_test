@@ -57,7 +57,11 @@ class Main_page extends MY_Controller
     }
 
 
-    public function comment($post_id,$message){ // or can be App::get_ci()->input->post('news_id') , but better for GET REQUEST USE THIS ( tests )
+    public function comment()
+    {
+        $post_id = App::get_ci()->input->post('post_id');
+        $message = App::get_ci()->input->post('message');
+        $reply_id = intval(App::get_ci()->input->post('reply_id'));
 
         if (!User_model::is_logged()){
             return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
@@ -76,6 +80,22 @@ class Main_page extends MY_Controller
             return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
         }
 
+        $data = [
+            'user_id' => User_model::get_user()->get_id(),
+            'assign_id' => $post->get_id(),
+            'text'      => $message
+        ];
+
+        if ($reply_id) {
+            $data['reply_id'] = $reply_id;
+        }
+
+        try
+        {
+            Comment_model::create($data);
+        } catch (EmeraldModelNoDataException $ex){
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
+        }
 
         $posts =  Post_model::preparation($post, 'full_info');
         return $this->response_success(['post' => $posts]);

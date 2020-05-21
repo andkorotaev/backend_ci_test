@@ -15,7 +15,7 @@ class Comment_model extends CI_Emerald_Model
     protected $user_id;
     /** @var int */
     protected $assing_id;
-    /** @var int */
+    /** @var int|NULL */
     protected $reply_id;
     /** @var int */
     protected $likes;
@@ -79,11 +79,11 @@ class Comment_model extends CI_Emerald_Model
     }
 
     /**
-     * @param int $reply_id
+     * @param int|null $reply_id
      *
      * @return bool
      */
-    public function set_reply_id(int $reply_id)
+    public function set_reply_id($reply_id)
     {
         $this->reply_id = $reply_id;
         return $this->save('reply_id', $reply_id);

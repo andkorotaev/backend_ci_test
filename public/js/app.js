@@ -1,3 +1,19 @@
+Vue.component('comment-component', {
+	template: '#comment-component',
+	props: ['comments', 'padding'],
+	methods: {
+		scrollToElement(value) {
+			this.$parent.scrollToElement(value);
+		},
+		addLike(value1, value2) {
+			this.$parent.addLike(value1, value2);
+		},
+		toComment(value) {
+			this.$parent.toComment(value);
+		}
+	}
+})
+
 var app = new Vue({
 	el: '#app',
 	data: {

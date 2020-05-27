@@ -26,7 +26,7 @@ class Comment_model extends CI_Emerald_Model
     protected $time_updated;
 
     // generated
-    protected $comments;
+    protected $comments = [];
     protected $user;
 
 
@@ -161,14 +161,15 @@ class Comment_model extends CI_Emerald_Model
      */
     public function get_comments()
     {
-        return App::get_ci()
-            ->s
-            ->from(self::CLASS_TABLE)
-            ->where([
-                'reply_id' => $this->get_id()
-            ])
-            ->orderBy('time_created','ASC')
-            ->many();
+        return $this->comments;
+    }
+
+    /**
+     * @param array $comments
+     */
+    public function set_comments(array $comments)
+    {
+        $this->comments = $comments;
     }
 
     /**
@@ -228,12 +229,30 @@ class Comment_model extends CI_Emerald_Model
     {
 
         $data = App::get_ci()->s->from(self::CLASS_TABLE)->where(['assign_id' => $assting_id])->orderBy('time_created','ASC')->many();
-        $ret = [];
-        foreach ($data as $i)
-        {
-            $ret[] = (new self())->set($i);
+
+        return self::comment_tree($data);
+    }
+
+    /**
+     * Рекурсивная функция, которая получает массив коментариев,
+     * которые надо превратить в дерево на основании поля reply_id
+     *
+     * @param array $data Comments info
+     * @param null $reply_id
+     * @return array Tree of comments
+     */
+    protected static function comment_tree(array $data, $reply_id = null)
+    {
+        $result = [];
+        $keys = array_keys(array_column($data, 'reply_id'), $reply_id);
+
+        foreach ($keys as $key) {
+            $el = (new self())->set($data[$key]);
+            $el->set_comments(self::comment_tree($data, $el->get_id()));
+            $result[] = $el;
         }
-        return $ret;
+
+        return $result;
     }
 
     /**
@@ -269,7 +288,9 @@ class Comment_model extends CI_Emerald_Model
             $o->text = $d->get_text();
             $o->reply_id = $d->get_reply_id();
             $o->likes = $d->get_likes();
-            $o->comments = $d->get_comments();
+
+            // Рекурсивная preparation для коментов
+            $o->comments = ($comments = $d->get_comments()) ? self::_preparation_full_info($comments) : [];
 
             $o->time_created = $d->get_time_created();
             $o->time_updated = $d->get_time_updated();
@@ -282,6 +303,7 @@ class Comment_model extends CI_Emerald_Model
 
         return $ret;
     }
+
 
 
 }

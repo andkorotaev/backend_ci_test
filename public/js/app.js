@@ -175,11 +175,22 @@ var app = new Vue({
 					if (type === 'post') {
 						self.post.likes = response.data.likes;
 					} else if (type === 'comment') {
-						let index = self.post.coments.findIndex((item) => item.id === response.data.assign_id);
-						self.post.coments[index].likes = response.data.likes;
+						self.setLikeToTree(self.post.coments, response.data.likes, response.data.assign_id);
 					}
 				})
 
+		},
+		async setLikeToTree(comments, likes, assign_id) {
+			for await (let comment of comments) {
+				if (comment.id === assign_id) {
+					comment.likes = likes;
+					return true;
+				} else if (comment.comments.length) {
+					this.setLikeToTree(comment.comments, likes, assign_id)
+				}
+			}
+
+			return false;
 		},
 		buyPack: function (id) {
 			var self= this;
